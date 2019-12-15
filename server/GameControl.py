@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import RecapManager
 
 
 # configuration
@@ -18,14 +19,16 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 def ping_pong():
     return jsonify('pong!2')
 
-@app.route('/recap', methods=['GET','POST'])
+
+@app.route('/recap', methods=['GET', 'POST'])
 def format_recap():
     response_object = {'status': 'success'}
     if request.method == 'GET':
-        response_object["msg"]='ModifiedRecap'
+        response_object["msg"] = 'ModifiedRecap'
     else:
-        response_object["msg"]='recapify!'
-
+        print(request.json)
+        formatted = RecapManager.format(request.json['rawText'])
+        response_object["msg"] = formatted
     return jsonify(response_object)
 
 

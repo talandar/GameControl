@@ -1,6 +1,18 @@
 <template>
   <div class="container">
-    <button type="button" class="btn btn-primary">{{ msg.msg }}</button>
+    <b-form @submit="getRecap" class="w-100">
+      <b-form-group id="form-title-group" label="Raw Text:" label-for="form-raw-input">
+        <b-form-textarea
+          id="form-raw-input"
+          v-model="rawText"
+          rows="15"
+          required
+          placeholder="Enter Recap"
+        ></b-form-textarea>
+      </b-form-group>
+      <b-button type="button" @click="getRecap" variant="primary">Get BBcoded Recap</b-button>
+    </b-form>
+    <div>{{formattedText}}</div>
   </div>
 </template>
 
@@ -8,18 +20,23 @@
 import axios from 'axios';
 
 export default {
-  name: 'Ping',
+  name: 'Recap',
+  components: {
+  },
   data() {
     return {
-      msg: '',
+      rawText: '',
+      formattedText: 'Submit To Generate',
     };
   },
   methods: {
-    getMessage() {
+    getRecap() {
       const path = 'http://192.168.1.111:5000/recap';
-      axios.post(path)
+      const requestForm = { rawText: this.rawText };
+      axios
+        .post(path, requestForm)
         .then((res) => {
-          this.msg = res.data;
+          this.formattedText = res.data.msg;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -27,8 +44,6 @@ export default {
         });
     },
   },
-  created() {
-    this.getMessage();
-  },
+  created() {},
 };
 </script>
