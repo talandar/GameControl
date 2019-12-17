@@ -11,13 +11,13 @@
         ></b-form-textarea>
       </b-form-group>
       <b-button type="button" @click="getRecap" variant="primary">Get BBcoded Recap</b-button>
+      <br /><br />
+      <b-form-textarea id="form-output"
+          v-model="formattedText"
+          rows="15"
+          placeholder="Output">
+      </b-form-textarea>
     </b-form>
-    <div>
-      <span v-for="line in formattedText" v-bind:key="line">
-      {{ line }}
-      <br />
-      </span>
-    </div>
   </div>
 </template>
 

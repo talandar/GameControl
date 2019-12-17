@@ -3,12 +3,16 @@ def format(text):
     print lines
     length = len(lines)
     formatted = []
-    for i in range(length):
+    i = 0
+    while i < length:
+        # for i in range(length):
         thisLine = lines[i]
+        print(thisLine)
         if i == 0:
             # assume first line is date
             formatted.extend(makeDateLine(thisLine))
             formatted.append("[ul]")
+            i = i+1
             continue
         try:
             nextLine = lines[i+1]
@@ -16,6 +20,16 @@ def format(text):
             nextLine = None
         thisLineIndentLevel = indentLevel(thisLine)
         nextLineIndentLevel = indentLevel(nextLine)
+
+        if thisLine.isspace():  # empty line - get ready for a date
+            formatted.append("[/ul]")
+            while(lines[i].isspace()):
+                i = i+1
+            # line should be date
+            formatted.extend(makeDateLine(lines[i]))
+            formatted.append("[ul]")
+            i = i+1
+            continue
 
         thisLine = makeLinks(thisLine)
         thisLine = thisLine.strip()
@@ -34,13 +48,18 @@ def format(text):
                 formatted.append(indent(currentNestLevel)+"[/ul]")
                 formatted.append(indent(currentNestLevel-1)+"[/li]")
                 currentNestLevel = currentNestLevel-1
-
-    print(formatted)
-    return formatted
+        i = i+1
+    formatted.append("[/ul]")
+    lineSep = "\n"
+    return lineSep.join(formatted)
+    # return {"lines": formatted, "rawText": nlSep.join(formatted)}
+    # return formatted
 
 
 def indentLevel(line):
     if line is None:
+        return 0
+    if line.isspace():
         return 0
     return line.count('\t')
 
