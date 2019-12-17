@@ -12,7 +12,12 @@
       </b-form-group>
       <b-button type="button" @click="getRecap" variant="primary">Get BBcoded Recap</b-button>
     </b-form>
-    <div>{{formattedText}}</div>
+    <div>
+      <span v-for="line in formattedText" v-bind:key="line">
+      {{ line }}
+      <br />
+      </span>
+    </div>
   </div>
 </template>
 
@@ -26,7 +31,7 @@ export default {
   data() {
     return {
       rawText: '',
-      formattedText: 'Submit To Generate',
+      formattedText: '',
     };
   },
   methods: {
