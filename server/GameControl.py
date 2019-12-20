@@ -26,7 +26,6 @@ def format_recap():
     if request.method == 'GET':
         response_object["msg"] = 'ModifiedRecap'
     else:
-        print(request.json)
         formatted = RecapManager.format(request.json['rawText'])
         response_object["msg"] = formatted
     return jsonify(response_object)
