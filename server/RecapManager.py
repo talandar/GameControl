@@ -168,3 +168,5 @@ def initLinks():
         "@[Brightseeker Bolviar](person:dcc56c5d-b347-4eee-bd10-a1e260ebba55)", "Bolviar"))
     linkMap.update(addLinkEntry(
         "@[Imera](person:5ed14923-fb04-4368-8a60-f13c6267d51b)"))
+    linkMap.update(addLinkEntry(
+        "@[Mosnadyn](person: 68b497aa-a3d1-4853-88f2-65d9ed79dc10)"))
