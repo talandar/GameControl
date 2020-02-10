@@ -68,7 +68,7 @@ class PlayList(object):
             lines.append("\n"+music_file+":")
             playlists = []
             for list_name in self.lists():
-                if self._playlist_data["files"][music_file][list_name]:
+                if self._playlist_data["files"][music_file].get(list_name, False):
                     playlists.append(list_name)
             lines.append(comma.join(playlists))
         with open(self._playlist_data_file, "w") as data:
@@ -81,6 +81,23 @@ class PlayList(object):
     def files(self):
         """list all files"""
         return sorted(self._playlist_data["files"])
+
+    def lists_for_file(self, file_path):
+        """get the lists for a specific file"""
+        lists = []
+        if file_path in self.files():
+            for playlist in self.lists():
+                if self._playlist_data["files"][file_path].get(playlist, False):
+                    lists.append(playlist)
+        return sorted(lists)
+
+    def files_in_list(self, list_name):
+        """get the list of files in a playlist"""
+        files = []
+        for file_name in self.files():
+            if list_name in self.lists_for_file(file_name):
+                files.append(file_name)
+        return files
 
     def add_list(self, list_name):
         """add a new playlist, and persist the playlist file"""
@@ -97,6 +114,18 @@ class PlayList(object):
             self._playlist_data['list_names'].remove(list_name)
             self._persist()
 
+    def add_to_list(self, file_path, list_name):
+        """Add a file to a playlist.  Persist after change."""
+        if list_name in self.lists() and file_path in self.files():
+            self._playlist_data["files"][file_path][list_name] = True
+            self._persist()
+
+    def remove_from_list(self, file_path, list_name):
+        """Remove a file from a playlist.  Persist after change."""
+        if list_name in self.lists() and file_path in self.files():
+            self._playlist_data["files"][file_path][list_name] = False
+            self._persist()
+
     def file_rescan(self):
         """rescan the directory to pick up any newly-added music files"""
         known_files = self.files()
@@ -111,15 +140,6 @@ class PlayList(object):
         if any_new_found:
             self._persist()
 
-    def lists_for_file(self, file_path):
-        """get the lists for a specific file"""
-        lists = []
-        if file_path in self.files():
-            for playlist in self.lists():
-                if self._playlist_data["files"][file_path][playlist]:
-                    lists.append(playlist)
-        return sorted(lists)
-
 
 if __name__ == "__main__":
     DAT = PlayList("/media/pi/New Volume/SkiesPlaylists/")
@@ -128,9 +148,11 @@ if __name__ == "__main__":
     print DAT.lists()
     DAT.add_list("Other")
     print DAT.lists()
-    DAT.remove_list("Other")
-    print DAT.lists()
-    DAT.remove_list("Other")
-    print DAT.lists()
-    DAT.remove_list("All")
-    print DAT.lists()
+    first_file = DAT.files()[0]
+    print first_file
+    DAT.add_to_list(first_file, "Battle")
+    print DAT.lists_for_file(first_file)
+    print DAT.files_in_list("Battle")
+    DAT.remove_from_list(first_file, "Battle")
+    print DAT.lists_for_file(first_file)
+    print DAT.files_in_list("Battle")
