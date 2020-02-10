@@ -1,6 +1,8 @@
+"""Root manager for application.  Controls endpoints for the client"""
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import RecapManager
+import recap.recap_manager as RecapManager
 
 
 # configuration
@@ -17,11 +19,13 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 # sanity check route
 @app.route('/ping', methods=['GET'])
 def ping_pong():
-    return jsonify('pong!2')
+    "sanity/connectivity check"
+    return jsonify('pong!')
 
 
 @app.route('/recap', methods=['GET', 'POST'])
 def format_recap():
+    "format a recap.  Returns bbcode version of recap, with links added."
     response_object = {'status': 'success'}
     if request.method == 'GET':
         response_object["msg"] = 'ModifiedRecap'
