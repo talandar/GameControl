@@ -1,6 +1,7 @@
 """Data container for playlist data.
 Supports various methods for storage of playlist and file data"""
 import os
+import json
 
 
 class PlayList(object):
@@ -103,6 +104,8 @@ class PlayList(object):
         """add a new playlist, and persist the playlist file"""
         if list_name not in self.lists():
             self._playlist_data['list_names'].append(list_name)
+            for file_path in self.files():
+                self.remove_from_list(file_path, list_name)
             self._persist()
 
     def remove_list(self, list_name):
@@ -112,6 +115,8 @@ class PlayList(object):
         Persists the playlist file."""
         if list_name in self.lists() and list_name != "All":
             self._playlist_data['list_names'].remove(list_name)
+            for file_path in self.files():
+                del self._playlist_data["files"][file_path][list_name]
             self._persist()
 
     def add_to_list(self, file_path, list_name):
@@ -121,8 +126,9 @@ class PlayList(object):
             self._persist()
 
     def remove_from_list(self, file_path, list_name):
-        """Remove a file from a playlist.  Persist after change."""
-        if list_name in self.lists() and file_path in self.files():
+        """Remove a file from a playlist.  Removing from the "All"
+        list is invalid, and will fail silently.  Persist after change."""
+        if list_name in self.lists() and list_name != "All" and file_path in self.files():
             self._playlist_data["files"][file_path][list_name] = False
             self._persist()
 
@@ -140,6 +146,29 @@ class PlayList(object):
         if any_new_found:
             self._persist()
 
+    def get_file_data(self):
+        """file data for use by ui.  Object with three fields;
+        root: the root directory of all files.  For improving display of filesname.
+        files: an object that has details of which files are in which playlists
+        lists: a list of the active playlists"""
+        data = {}
+        data["files"] = self._playlist_data["files"].copy()
+        data["root"] = self.root_dir
+        data["lists"] = self.lists()
+        return data
+
+    def get_list_data(self):
+        """playlist data used by the player ui.  Array of objects:
+        each one has 'name' and 'numfiles'"""
+        data = []
+        for list_name in self.lists():
+            list_dat = {
+                'name': list_name,
+                'numfiles': len(self.files_in_list(list_name))
+            }
+            data.append(list_dat)
+        return data
+
 
 if __name__ == "__main__":
     DAT = PlayList("/media/pi/New Volume/SkiesPlaylists/")
@@ -149,10 +178,14 @@ if __name__ == "__main__":
     DAT.add_list("Other")
     print DAT.lists()
     first_file = DAT.files()[0]
+    second_file = DAT.files()[1]
     print first_file
     DAT.add_to_list(first_file, "Battle")
+    DAT.add_to_list(second_file, "Battle")
+    DAT.add_to_list(second_file, "Other")
     print DAT.lists_for_file(first_file)
     print DAT.files_in_list("Battle")
     DAT.remove_from_list(first_file, "Battle")
     print DAT.lists_for_file(first_file)
     print DAT.files_in_list("Battle")
+    print json.dumps(DAT.get_file_data(), indent=2)

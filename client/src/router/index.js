@@ -6,6 +6,9 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Ping from '../components/Ping.vue';
 import Recap from '../components/Recap.vue';
+import Hub from '../components/Hub.vue';
+import '@fortawesome/fontawesome-free/css/all.css';
+// import '@fortawesome/fontawesome-free/js/all.js';
 
 Vue.use(Router);
 
@@ -26,7 +29,7 @@ export default new Router({
     {
       path: '',
       name: 'Main',
-      component: Recap,
+      component: Hub,
     },
   ],
 });

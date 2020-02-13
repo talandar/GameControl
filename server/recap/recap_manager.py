@@ -26,9 +26,9 @@ def format_recap(text):
         this_line_indent_level = get_indent_level(this_line)
         next_line_indent_level = get_indent_level(next_line)
 
-        if this_line.isspace():  # empty line - get ready for a date
+        if this_line.isspace() or this_line == "":  # empty line - get ready for a date
             formatted.append("[/ul]")
-            while lines[i].isspace():
+            while lines[i].isspace() or lines[i] == "":
                 i = i+1
             # line should be date
             formatted.extend(make_date_line(lines[i]))
@@ -89,13 +89,13 @@ def indent(indent_level):
     "indent a line to the specified indent level"
     # what's the efficient way to do this?
     txt = ''
-    for i in range(indent_level):
+    for _ in range(indent_level):
         txt = txt+"\t"
     return txt
 
 
 def add_link_entry(tag, *args):
-    "used for populating the entries in the link amap"
+    "used for populating the entries in the link map"
     this_map = {}
     name = tag[2:tag.index(']')]
     link_index = tag.index(']')+1
