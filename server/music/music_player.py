@@ -56,7 +56,7 @@ class MusicPlayer(object):
 
     def _keep_queue_full(self):
         while True:
-            if not pygame.mixer.music.get_busy():
+            if pygame.mixer.get_init() and not pygame.mixer.music.get_busy():
                 queue_file = self._random_file()
                 if queue_file:
                     print 'queueing {}'.format(queue_file)

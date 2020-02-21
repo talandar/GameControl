@@ -15,7 +15,17 @@ music_page = Blueprint('music_page', __name__,
 @music_page.route('/filedata', methods=["GET"])
 def list_file_data():
     """get json representation of file and playlist data for playlist editor"""
-    return jsonify(PLAYLIST.get_file_data())
+    f_data = PLAYLIST.get_file_data()
+    f_data["totalRows"] = len(f_data["files"])
+    page_num = int(request.args.get("currentPage")) - 1
+    page_size = int(request.args.get("perPage"))
+    start = page_num * page_size
+    end = start + page_size
+    new_file_data = {}
+    for file_name in sorted(f_data["files"].keys())[start:end]:
+        new_file_data[file_name] = f_data["files"][file_name]
+    f_data["files"] = new_file_data
+    return jsonify(f_data)
 
 
 @music_page.route('/playlistdata', methods=["GET"])

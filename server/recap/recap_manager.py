@@ -176,5 +176,11 @@ def init_links():
     link_map.update(add_link_entry(
         "@[Imera](person:5ed14923-fb04-4368-8a60-f13c6267d51b)"))
     link_map.update(add_link_entry(
-        "@[Mosnadyn](person: 68b497aa-a3d1-4853-88f2-65d9ed79dc10)"))
+        "@[Mosnadyn](person:68b497aa-a3d1-4853-88f2-65d9ed79dc10)"))
+    link_map.update(add_link_entry(
+        "@[Nax](person:b21c5e23-e59f-4c69-bc5c-ebb3c321710b)"))
+    link_map.update(add_link_entry(
+        "@[Nokozza](person:f4abb40c-0ff4-41f3-a3f6-cae1a515fc53)"))
+    link_map.update(add_link_entry(
+        "@[Ladore](person:beba0263-925f-404c-800d-fa0e150e77b7)"))
     return link_map
