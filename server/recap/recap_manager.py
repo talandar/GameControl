@@ -183,4 +183,16 @@ def init_links():
         "@[Nokozza](person:f4abb40c-0ff4-41f3-a3f6-cae1a515fc53)"))
     link_map.update(add_link_entry(
         "@[Ladore](person:beba0263-925f-404c-800d-fa0e150e77b7)"))
+    link_map.update(add_link_entry(
+        "@[Precursor](myth:2a20fe93-bad6-414e-a5b3-422ef9633ff0)"))
+    link_map.update(add_link_entry(
+        "@[Davaros](person:e300e345-f2b0-4cbb-9bbc-8ca7c0b1a4ac)"))
+    link_map.update(add_link_entry(
+        "@[Erlathan Dara](person:a86a4569-402f-406e-82b1-5a7c45d8271d)"))
+    link_map.update(add_link_entry(
+        "@[Elderwood](settlement:ef1bdca1-6c39-4c59-bd3d-c54cf9548474)"))
+    link_map.update(add_link_entry(
+        "@[Shayel Wynric](person:7e0247e6-93e8-480f-892c-5cba500307fa)"))
+    link_map.update(add_link_entry(
+        "@[Alexandre Sinter](person:3dda306e-c1fa-4d18-896c-1964da3c9257)"))
     return link_map
