@@ -18,11 +18,10 @@ def format_recap(text):
             formatted.append("[ul]")
             i = i+1
             continue
-        try:
-            next_line = lines[i+1]
-        except Exception as exc:
-            print exc
+        if i == (length-1):
             next_line = None
+        else:
+            next_line = lines[i+1]
         this_line_indent_level = get_indent_level(this_line)
         next_line_indent_level = get_indent_level(next_line)
 
@@ -70,6 +69,17 @@ def get_indent_level(line):
 
 def make_date_line(line):
     "make the line into a date header.  Assumes already at zero-indent, returns a list"
+    day_names = ["Gods' Day", "Forge Day", "Coin Day",
+                 "Sprout Day", "Tomes Day", "Flames Day"]
+    if not 'Day' in line:
+        str_date = line.rstrip(
+            'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ,')
+        if str_date.isnumeric():
+            date = int(str_date)
+            day = day_names[date%6]
+            line = line +", "+day
+
+
     formatted = [
         '[b]' + line + '[/b]',
         '[hr]'
@@ -194,5 +204,15 @@ def init_links():
     link_map.update(add_link_entry(
         "@[Shayel Wynric](person:7e0247e6-93e8-480f-892c-5cba500307fa)"))
     link_map.update(add_link_entry(
-        "@[Alexandre Sinter](person:3dda306e-c1fa-4d18-896c-1964da3c9257)"))
+        "@[Alexandre](person:3dda306e-c1fa-4d18-896c-1964da3c9257)", "Alexandre Sinter"))
+    link_map.update(add_link_entry(
+        "@[Artura](person:2a76e14c-6377-47e1-a179-51760e3e8293)", "Artura Verdugo"))
+    link_map.update(add_link_entry(
+        "@[Skarun](person:70066efe-db7e-4df9-95c7-a20e7a8cedd4)"))
+    link_map.update(add_link_entry(
+        "@[Celestia](organization:6fd69007-4b44-4872-93ae-5b5ac525ac52)"))
+    link_map.update(add_link_entry(
+        "@[Kadra](person:c8bf0825-76cb-4023-8825-fc4009a1a46f)"))
+    link_map.update(add_link_entry(
+        "@[Sanzir](person:efea694e-9956-4241-9e5f-12c8b88e793b)"))
     return link_map
