@@ -1,9 +1,8 @@
 """Root manager for application.  Controls endpoints for the client"""
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
 import recap.recap_manager as RecapManager
 import music.music_endpoints as MusicEndpoints
+import image.image_endpoints as ImageEndpoints
 
 
 # configuration

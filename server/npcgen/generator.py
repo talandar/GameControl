@@ -35,9 +35,9 @@ def main():
     gen = Generator("/data/ArcadiaValues.txt")
     override = None
     override = {
-        # "Species": "Elf",
+        "Species": "Elf",
         # "Nationality": "Thellonde",
-        "Gender": "Androgenous or Agender"
+        # "Gender": "Androgenous or Agender"
     }
     for _ in range(20):
         gen.generate(override)

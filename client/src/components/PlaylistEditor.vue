@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     getFileData() {
-      const path = 'http://192.168.1.111:5000/music/filedata';
+      const path = 'http://Seed:5000/music/filedata';
       axios
         .get(path, { params: { currentPage: this.currentPage, perPage: this.perPage } })
         .then((res) => {

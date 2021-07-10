@@ -216,3 +216,53 @@ def init_links():
     link_map.update(add_link_entry(
         "@[Sanzir](person:efea694e-9956-4241-9e5f-12c8b88e793b)"))
     return link_map
+
+
+def main():
+    intext = """18th of Owl
+On her way back to the ship, Fedaria is stopped by Irina, who asks how it is that a group of mercenaries got so close to the Pyrrhan royalty.  Fedaria only says that there’s a story behind it, but its not entirely hers to tell.
+Alexandre briefly visits the Fly by Night, and speaks with Graham.  He asks Graham how someone from a Thell noble house came to be wearing Pyrrahn roughs clothing, to which Graham only says there were unfortunate events that disrupted seats of power within his house, and he left because he wasn’t prepared for it.  Alexandre expresses interest in the concerns of the Pyrrhan people, and Graham tells him they’re just normal people concerned about the king’s decisions, but they mostly worry how policy affects them rather than caring about who’s on the throne
+Mars, Kiera, and Rosie train once again on the Firebrand, and after they are exhausted with practice,head back to the Fly by Night
+Back on the ship, they get a whiff of an odd smell, start feeling light headed - Gilda passes out
+	Graham recognizes the smell as an illicit drug, and the crew sees the source of the smell - a burning island in their path towards Elderwood
+	Mars brings Gilda downstairs and Fedaria uses Lesser Restoration on her, and once the ship gets upwind of the wafting smoke, a Sylvan airship is spotted, with a shimmering aura and a massive flamethrower, atypical to the Sylvan ship style
+	The Firebrand peels off to get more distance and continue towards Elderwood, and the Fly-by-Night follows the odd ship until they get feel for its path - heading towards an isthmus on the southwestern side of the continent
+Catching back up to the Firebrand, the Midnight Crew escorts the Pyrrhans the rest of the way to their destination
+On the way, Rosie works on her heat rune, and Graham completes his rework of his rifle into the Vindication
+
+19th of Owl
+In the morning, Kiera, Rosie, and Mars train once again with the Pyrrhans, and pick up a solid understanding of the one-handed, defensive sword technique
+The Fly-by-Night and Firebrand dock separately, and the two groups plan to meet up after the Pyrrahns and the emissary establish their agenda
+	The Midnight Crew checks into the Green Cap, where Davaros greets them, and Yon comes bounding out to hug Gilda/Ariel
+	Gilda explains that she’s looking like Mags for the time being and going by “Ariel”
+	She introduces Mars and Kiera, who are new to Yon
+	Graham starts going by “Garrison”, and begins wearing a new outfit
+Over lunch at the Green Cap, Toby attempts scrying on the twins
+	He is able to see them at a bar, with several people with odd expressions around them, and a bartender with a black shirt, brown hair, and a broken nose nearby
+	The twins were able to “look at” Toby’s scrying point, striking it and ending the spell
+	Upon describing the scene to Davaros, he says the bar may be in the human enclave area of the city
+	The crew discusses their options, and decide to strike while the opportunity is present and try to find the twins
+Walking to the nearby human enclave, a district where illicit activities and some shady business are common, the crew finds and questions several people on a bar crawl, and learn that the broken-nosed man seen during the scrying was likely Johnny of the Hammered Bronze bar
+	The crew makes use of Doctor Who to scope out the area, and find several entrances to the bar but no indication which floor the twins may be on
+	After a strategic discussion about whether they should try to draw the twins outside or surprise them inside the bar, they decide to split up and tackle each of the three entrances in pairs to find and strike them down as quickly as possible
+Each of the Midnight Crew members advances through the Hammered Bronze, sighting the twins and attacking instantly
+	Rosie is overcome by a spell that causes her to not recognize anyone, but shakes it off to impart some devastating strikes on the twins
+	Toby is knocked away from one of the treetop entrances, falling, but moving back up to the fight
+	Gilda summons her spirit guardians, this time taking on the appearance of her fallen circus friends that the twins killed
+	Mars clambers across the bar, raging and swinging wildly at the twins
+	Kiera punches and kicks her way through the crowd, getting multiple hits in
+	Graham gets a killing shot on one twin, but when her sister goes to strike him with magical lightning, Fedaria stealthily counterspells it
+	Several dazed-looking bar patrons come to the defense of the twins, obviously compelled in some way.
+Seeing that the odds are against her, the sister bearing the lute armament teleports out of sight
+	Rosie dashes after her, the others following right after
+	Spotting her just outside one upper entrance, the Midnight Crew lashes out to prevent her from getting away
+	Gilda gets the final strike on the lute bearer, cutting her down with the summoned images of Mags and Amber, and the lute bearer falls to the ground below
+	The team splits as some move towards the body and armament below, while some go to check on the bar patrons who got mixed up in the hectic combat and were hurt
+"""
+
+    outtext = format_recap(intext)
+    print(outtext)
+
+
+if __name__ == '__main__':
+    main()

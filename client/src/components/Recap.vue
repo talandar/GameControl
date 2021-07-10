@@ -36,7 +36,7 @@ export default {
   },
   methods: {
     getRecap() {
-      const path = 'http://192.168.1.111:5000/recap';
+      const path = 'http://Seed:5000/recap';
       const requestForm = { rawText: this.rawText };
       axios
         .post(path, requestForm)
