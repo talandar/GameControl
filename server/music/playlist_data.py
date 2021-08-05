@@ -171,21 +171,21 @@ class PlayList(object):
 
 
 if __name__ == "__main__":
-    DAT = PlayList("/media/pi/New Volume/SkiesPlaylists/")
-    print DAT.lists()
-    DAT.add_list("Battle")
-    print DAT.lists()
-    DAT.add_list("Other")
-    print DAT.lists()
-    first_file = DAT.files()[0]
-    second_file = DAT.files()[1]
+    data = PlayList("/media/pi/New Volume/SkiesPlaylists/")
+    print data.lists()
+    data.add_list("Battle")
+    print data.lists()
+    data.add_list("Other")
+    print data.lists()
+    first_file = data.files()[0]
+    second_file = data.files()[1]
     print first_file
-    DAT.add_to_list(first_file, "Battle")
-    DAT.add_to_list(second_file, "Battle")
-    DAT.add_to_list(second_file, "Other")
-    print DAT.lists_for_file(first_file)
-    print DAT.files_in_list("Battle")
-    DAT.remove_from_list(first_file, "Battle")
-    print DAT.lists_for_file(first_file)
-    print DAT.files_in_list("Battle")
-    print json.dumps(DAT.get_file_data(), indent=2)
+    data.add_to_list(first_file, "Battle")
+    data.add_to_list(second_file, "Battle")
+    data.add_to_list(second_file, "Other")
+    print data.lists_for_file(first_file)
+    print data.files_in_list("Battle")
+    data.remove_from_list(first_file, "Battle")
+    print data.lists_for_file(first_file)
+    print data.files_in_list("Battle")
+    print json.dumps(data.get_file_data(), indent=2)

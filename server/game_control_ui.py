@@ -5,7 +5,9 @@ import wx
 from threading import Thread
 from pubsub import pub
 import queue
+import yaml
 from message import generate_message, split_message
+from ui_tabs import recap_tab, playlist_tab
 
 
 class NotebookWindow(wx.Frame):
@@ -17,52 +19,17 @@ class NotebookWindow(wx.Frame):
         sizer = wx.BoxSizer()
         sizer.Add(self.notebook, 1, wx.EXPAND)
         p.SetSizer(sizer)
-        
-
-
-class RecapFrame(wx.Panel):
-    def __init__(self, parent, queue):
-        wx.Panel.__init__(self, parent)
-        self.queue = queue
-        self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.displayLbl = wx.StaticText(self, label="Amount of time since thread started goes here")
-        self.btn = btn = wx.Button(self, label="Start Thread")
-        self.sizer.Add(self.displayLbl, 1, wx.EXPAND)
-        self.sizer.Add(self.btn, 0, wx.EXPAND)
-        #Layout sizers
-        self.SetSizer(self.sizer)
-        self.SetAutoLayout(1)
-        self.sizer.Fit(self)
-        btn.Bind(wx.EVT_BUTTON, self.onButton)
-
-    def onButton(self, event):
-        """
-        Runs the thread
-        """
-        msg = generate_message("RECAP", "TEMP")
-        self.queue.put(msg)
-        self.displayLbl.SetLabel("Thread started!")
-        btn = event.GetEventObject()
-        #btn.Disable()
-
-    def update(self, args):
-        self.displayLbl.SetLabel("Thread Finished!")
-
-
-class PlaylistEditFrame(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        wx.StaticText(self, -1, "This page for editing/formatting playlists", (20, 20))
 
 
 class WebsocketThread(Thread):
 
-    def __init__(self, ui_main, queue):
+    def __init__(self, ui_main, queue, server_connection_string):
         """Init Worker Thread Class."""
         Thread.__init__(self)
         self.stop = False
         self.ui = ui_main
         self.queue = queue
+        self._connection_string = server_connection_string
         print("about to start thread")
         self.start()
 
@@ -77,8 +44,7 @@ class WebsocketThread(Thread):
     async def _run(self):
         """Run Worker Thread."""
         # This is the code executing in the new thread.
-        uri = "ws://localhost:8765"
-        async with websockets.connect(uri) as websocket:
+        async with websockets.connect(self._connection_string) as websocket:
             print("socket connected")
             self.websocket = websocket
             await self.message_loop(websocket)
@@ -102,40 +68,45 @@ class ControlUI(object):
     modules = {}
 
     def __init__(self):
+        config = self._load_config()
         self.app = wx.App()
         self.queue = queue.Queue()
         self.notebook_frame = NotebookWindow()
-        self.websocket_thread = WebsocketThread(self.notebook_frame, self.queue)
+        self.websocket_thread = WebsocketThread(self.notebook_frame, self.queue, config["server_uri"])
         pub.subscribe(self.updateDisplay, "update")
         print("past thread creation")
         self.notebook_frame.Show()
-        self.recap = RecapFrame(self.notebook_frame.notebook, self.queue)
+        self.recap = recap_tab.RecapFrame(self.notebook_frame.notebook, self.queue)
         self._add_page("RECAP", self.recap, "Recap", True)
-        self.playlist_edit = PlaylistEditFrame(self.notebook_frame.notebook)
-        self._add_page("MUSIC", self.playlist_edit, "Playlist Edit")
+        self.playlist_edit = playlist_tab.PlaylistEditFrame(self.notebook_frame.notebook)
+        self._add_page("PLAYLIST", self.playlist_edit, "Playlist Edit")
         self.app.MainLoop()
         print("out of main loop")
         self.websocket_thread.shutdown()
+
+    def _load_config(self):
+        with open("ui_config.yaml", "r") as f:
+            config = yaml.safe_load(f)
+            print("Loaded Config:")
+            print(config)
+            return config
 
     def _add_page(self,  module, page, title, selected=False):
         self.notebook_frame.notebook.AddPage(page, title, selected)
         self.modules[module] = page
 
-
     def updateDisplay(self, msg):
         """
         Receives data from thread and updates the display
         """
-        print("Got update display")
         module, args = split_message(msg)
         page = self.modules.get(module, None)
         if page:
             page.update(args)
-
+        else:
+            if module != "ACK" and module != "ECHO":
+                print(f"Unknown message: {msg}")
 
 
 if __name__ == '__main__':
     control = ControlUI()
-    print('out of initializer')
-
-    #asyncio.get_event_loop().run_until_complete(hello())
