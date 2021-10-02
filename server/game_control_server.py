@@ -1,5 +1,5 @@
 import asyncio
-from server.music.music_module import MusicModule
+from music.music_module import MusicModule
 import websockets
 import json
 import recap.recap_manager as recap

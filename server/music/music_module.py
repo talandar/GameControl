@@ -1,5 +1,5 @@
-import playlist_data
-import music_player
+import music.playlist_data as playlist_data
+import music.music_player as music_player
 from message import split_message
 
 

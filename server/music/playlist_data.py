@@ -171,6 +171,7 @@ class PlayList(object):
 
 
 if __name__ == "__main__":
+    """
     data = PlayList("/media/pi/New Volume/SkiesPlaylists/")
     print data.lists()
     data.add_list("Battle")
@@ -189,3 +190,4 @@ if __name__ == "__main__":
     print data.lists_for_file(first_file)
     print data.files_in_list("Battle")
     print json.dumps(data.get_file_data(), indent=2)
+    """

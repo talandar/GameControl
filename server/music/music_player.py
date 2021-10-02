@@ -19,11 +19,11 @@ class MusicPlayer(object):
 
     def play(self, file_paths):
         """play playlist in shuffled order, until stopped"""
-        print 'new list requested, has {} files'.format(len(file_paths))
+        print(f'new list requested, has {len(file_paths)} files')
         self.stop()
         self._file_paths = list(file_paths)
         next_file = self._random_file()
-        print 'playing next file: {}'.format(next_file)
+        print(f'playing next file: {next_file}')
         if next_file:
             pygame.mixer.music.load(next_file)
             pygame.mixer.music.play()
@@ -41,9 +41,9 @@ class MusicPlayer(object):
         pygame.mixer.music.stop()
 
     def _playback_end_callback(self):
-        print 'file ended or new list start requested'
+        print('file ended or new list start requested')
         next_file = self._random_file()
-        print 'playing next file: {}'.format(next_file)
+        print(f'playing next file: {next_file}')
         if next_file:
             pygame.mixer.music.load(next_file)
             pygame.mixer.music.play()
@@ -59,7 +59,7 @@ class MusicPlayer(object):
             if pygame.mixer.get_init() and not pygame.mixer.music.get_busy():
                 queue_file = self._random_file()
                 if queue_file:
-                    print 'queueing {}'.format(queue_file)
+                    print(f'queueing {queue_file}')
                     pygame.mixer.music.load(queue_file)
                     pygame.mixer.music.play()
             time.sleep(.1)
