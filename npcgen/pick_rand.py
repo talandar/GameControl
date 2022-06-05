@@ -53,9 +53,9 @@ class FollowOnGeneration(object):
 
 
 def main():
-    picker = Picker(["a", 'b', 'c', 'd'], [1, 2, 3, 1])
+    picker = Picker(["a", 'b', 'c'], [75, 25, 10])
     for _ in range(20):
-        picker.choose()
+        print(picker.choose())
 
 
 if __name__ == '__main__':

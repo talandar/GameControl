@@ -18,9 +18,7 @@ class PlaylistEditFrame(wx.Panel):
 
         # number of columns = 1 for name, plus one for each playlist
         self.playlists = args["lists"]
-        # for now, let's fake some data
-        # TODO remove
-        self.playlists = ["battle", "standard", "wizard", "foo", "baz"]
+        name_root = args["root"]
         num_columns = 1 + len(self.playlists)
         self.gridsizer = wx.GridSizer(cols=num_columns, vgap=1, hgap=2)
         self.outer_sizer = wx.BoxSizer(orient=wx.VERTICAL)
@@ -35,16 +33,13 @@ class PlaylistEditFrame(wx.Panel):
         self.outer_sizer.AddSpacer(10)
         self.outer_sizer.Add(self.gridsizer, 1, wx.EXPAND)
         self.file_list = args["files"]
-        # for now, fake some data
-        # TODO remove
-        self.file_list = self._get_fake_data()
         self.gridsizer.Add(wx.StaticText(self, -1, "File Name"))
         for playlist in self.playlists:
             self.gridsizer.Add(wx.StaticText(self, -1, playlist))
 
-        # TODO remove this, just for scale testing
         for filename, filedata in self.file_list.items():
-            self.gridsizer.Add(wx.StaticText(self, -1, filename))
+            display_name = filename[len(name_root):]
+            self.gridsizer.Add(wx.StaticText(self, -1, display_name))
             for playlist in self.playlists:
                 in_list = filedata[playlist]
                 self.gridsizer.Add(wx.StaticText(self, -1, f"{in_list}"))
@@ -53,35 +48,3 @@ class PlaylistEditFrame(wx.Panel):
         self.SetAutoLayout(1)
         self.outer_sizer.Fit(self)
 
-    def _get_fake_data(self):
-        data = {
-            "foofile": {
-                "battle": True,
-                "standard": False,
-                "wizard": True,
-                "foo": True,
-                "baz": False
-            },
-            "barfile": {
-                "battle": False,
-                "standard": False,
-                "wizard": False,
-                "foo": True,
-                "baz": False
-            },
-            "bazfile": {
-                "battle": True,
-                "standard": True,
-                "wizard": True,
-                "foo": False,
-                "baz": True
-            },
-            "woooofile": {
-                "battle": True,
-                "standard": False,
-                "wizard": True,
-                "foo": True,
-                "baz": False
-            }
-        }
-        return data

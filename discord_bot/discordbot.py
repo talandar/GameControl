@@ -1,6 +1,8 @@
 import os
 
 import discord
+from xcard_cog import XCardHandler
+from music_cog import Music
 from dotenv import load_dotenv
 from battle_cog import BattleTracker
 
@@ -12,7 +14,8 @@ class TobyTrack(discord.ext.commands.Bot):
 
     def __init__(self):
         super().__init__(command_prefix=self.get_server_prefix)
-        self.add_cog(BattleTracker(self))
+        self.add_cog(Music(self))
+        self.add_cog(XCardHandler(self))
         self.setup_prefix_map()
 
     async def on_ready(self):

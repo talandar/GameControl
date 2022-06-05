@@ -15,6 +15,7 @@ class PlayList(object):
         self._playlist_data_file = os.path.join(
             self.root_dir, self.DATA_FILE_NAME)
         self._read_playlist_file()
+        self._persist()
 
     def _read_playlist_file(self):
         playlist_data = {"list_names": [], "files": {}}
