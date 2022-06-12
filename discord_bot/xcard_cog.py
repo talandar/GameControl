@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 
 
 class XCardHandler(commands.Cog):
@@ -8,11 +9,19 @@ class XCardHandler(commands.Cog):
 
     @commands.command(aliases=['x','x-card'])
     async def xcard(self, ctx):
-        await ctx.send(f"Someone Posted an Xcard!  Stop it right now!")
+        """Call for an X card, to stop the current action in case the current action is uncomfortable."""
+        await ctx.send("X-Card - Let's change things up...")
+        await ctx.send(file=discord.File('./discord_bot/images/xcard.png'))
 
     @commands.command(aliases=['o','o-card','awesome'])
     async def ocard(self, ctx):
-        await ctx.send(f"This scene is great, keep going!")
+        """Call for the O card - indicating that what is going on is super cool."""
+        await ctx.send("This scene is great, keep going! :sunglasses:")
+
+    @commands.command(aliases=['fade','fadetoblack'])
+    async def fadecard(self, ctx):
+        """Call for a fade to black.  This scene can happen, but lets do that offscreen."""
+        await ctx.send("Fade-Card Called.  Lets fade this scene to black...")
 
     async def cog_after_invoke(self, ctx):
-        await ctx.message.delete(delay=0)
+        await ctx.message.delete()
