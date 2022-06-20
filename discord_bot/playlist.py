@@ -6,7 +6,7 @@ import json
 
 class ServerPlaylist(object):
 
-    DATA_FILE_LOCATION = "./discord_bot/playlists/"
+    DATA_FILE_LOCATION = "./playlists/"
     
     def __init__(self, guild_id):
         self._currentPlaylist = None
@@ -16,17 +16,18 @@ class ServerPlaylist(object):
         self._load_data()
 
     def add_playlist(self, playlist_name):
-        if playlist_name not in self._playlists:
-            songs = []
-            self._playlists[playlist_name] = songs
+        lower_name = playlist_name.lower()
+        if lower_name not in self._playlists:
+            self._playlists[lower_name] = {'songs': [], 'name': playlist_name}
             self._save_data()
             return True
         else:
             return False
 
     def remove_playlist(self, playlist_name):
-        if playlist_name in self._playlists:
-            self._playlists.pop(playlist_name)
+        lower_name = playlist_name.lower()
+        if lower_name in self._playlists:
+            self._playlists.pop(lower_name)
             self._save_data()
             return True
         else:
@@ -34,18 +35,21 @@ class ServerPlaylist(object):
 
     def list_playlists(self):
         playlists = []
-        for name in self._playlists.keys():
-            playlists.append(name)
+        for entry in self._playlists.values():
+            playlists.append(entry['name'])
         return sorted(playlists)
 
     def songs_in_list(self, playlist_name):
-        if playlist_name in self._playlists:
-            return sorted(self._playlists[playlist_name])
+        lower_name = playlist_name.lower()
+        if lower_name in self._playlists:
+            songs = self._playlists[lower_name]['songs']
+            return sorted(songs)
         return []
 
     def add_to_playlist(self, playlist_name, song_url):
-        if playlist_name in self._playlists:
-            songs = self._playlists[playlist_name]
+        lower_name = playlist_name.lower()
+        if lower_name in self._playlists:
+            songs = self._playlists[lower_name]['songs']
             songs.append(song_url)
             self._save_data()
             return True
@@ -53,28 +57,35 @@ class ServerPlaylist(object):
             return False
 
     def remove_from_playlist(self, playlist_name, song_url):
-        if playlist_name in self._playlists:
-            songs = self._playlists[playlist_name]
-            songs.discard(song_url)
+        lower_name = playlist_name.lower()
+        if lower_name in self._playlists:
+            songs = self._playlists[lower_name]['songs']
+            if song_url in songs:
+                songs.remove(song_url)
             self._save_data()
             return True
         else:
             return False
 
     def current_playlist(self):
-        return self._currentPlaylist
+        if self._currentPlaylist and self._currentPlaylist in self._playlists:
+            return self._playlists[self._currentPlaylist]['name']
+        return None
 
     def play(self, playlist_name):
-        if playlist_name in self._playlists:
-            self._currentPlaylist = playlist_name
+        lower_name = playlist_name.lower()
+        if lower_name in self._playlists:
+            self._currentPlaylist = lower_name
             return self.get_next_song()
         else:
             return None
 
     def get_next_song(self):
         print(f"getting next song in playlist {self._currentPlaylist}.  Currently playing {self._currentSong}")
-        if self._currentPlaylist and self._currentPlaylist in self._playlists:
-            songs = self._playlists[self._currentPlaylist]
+        if not self._currentPlaylist:
+            return None
+        if self._currentPlaylist in self._playlists:
+            songs = self._playlists[self._currentPlaylist]['songs']
             if len(songs)==0:
                 self._currentSong = None
                 return None
@@ -115,7 +126,7 @@ class ServerPlaylist(object):
         if os.path.exists(outputfile):
             os.rename(outputfile,bakfile)
         os.rename(tmpfile,outputfile)
-        #os.remove(bakfile)
+        os.remove(bakfile)
 
     def _path(self):
         return os.path.join(self.DATA_FILE_LOCATION, f"{self.guild_id}.json")

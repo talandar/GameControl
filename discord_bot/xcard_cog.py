@@ -11,7 +11,7 @@ class XCardHandler(commands.Cog):
     async def xcard(self, ctx):
         """Call for an X card, to stop the current action in case the current action is uncomfortable."""
         await ctx.send("X-Card - Let's change things up...")
-        await ctx.send(file=discord.File('./discord_bot/images/xcard.png'))
+        await ctx.send(file=discord.File('./images/xcard.png'))
 
     @commands.command(aliases=['o','o-card','awesome'])
     async def ocard(self, ctx):

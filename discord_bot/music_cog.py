@@ -59,6 +59,7 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.server_playlists = {}
+        self._now_playing = None
 
     @commands.command()
     async def join(self, ctx):
@@ -79,7 +80,8 @@ class Music(commands.Cog):
         """(url): Immediately streams from a url, does not modify playlists."""
         player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
         ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
-        await ctx.send(f'Now playing: {player.title}')
+        self._now_playing = f"Now streaming {player.title}"
+        await ctx.send(self._now_playing)
 
     @commands.command()
     async def volume(self, ctx, volume: int):
@@ -93,11 +95,13 @@ class Music(commands.Cog):
     @commands.command()
     async def leave(self, ctx):
         """Stops and disconnects the bot from voice"""
+        self._now_playing = None
         await ctx.voice_client.disconnect()
 
     @commands.command()
     async def stop(self, ctx):
         """Stops playing the current playlist or stream without leaving the channel"""
+        self._now_playing = None
         data = self._get_data(ctx)
         data.stop()
         ctx.voice_client.stop()
@@ -173,8 +177,10 @@ class Music(commands.Cog):
         if song: 
             player = await YTDLSource.from_url(song, loop=self.bot.loop, stream=True)
             ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._song_over_callback(ctx))
-            await ctx.send(f'Now playing: {player.title}')
+            self._now_playing = f"Now playing {player.title} in playlist {data.current_playlist()}"
+            await ctx.send(self._now_playing)
         else:
+            self._now_playing = None
             await ctx.send("No more songs to play.  Did the playlist get deleted?")
 
     def _song_over_callback(self, ctx):
@@ -183,6 +189,13 @@ class Music(commands.Cog):
         if pl:
             asyncio.run_coroutine_threadsafe(self.play(ctx, pl), loop=self.bot.loop)
 
+    @commands.command(aliases=["currentsong"])
+    async def nowplaying(self, ctx):
+        """get the currently playing song and playlist"""
+        if self._now_playing:
+            await ctx.send(self._now_playing)
+        else:
+            await ctx.send("Not currently playing!")
 
     @commands.command(aliases=["skip"])
     async def next(self, ctx):
