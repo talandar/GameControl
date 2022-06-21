@@ -6,7 +6,6 @@ from xcard_cog import XCardHandler
 from music_cog import Music
 from dice_cog import Dice
 from dotenv import load_dotenv
-from battle_cog import BattleTracker
 from utils import *
 
 
@@ -24,7 +23,7 @@ class TobyTrack(discord.ext.commands.Bot):
         self.add_general_commands()
 
     async def on_ready(self):
-        print('Logged on as {0}!'.format(self.user))
+        print(f'Logged on as {self.user}!')
         print(f'running code built on {get_version()}')
 
     def get_server_prefix(self, bot, message):
@@ -43,10 +42,7 @@ class TobyTrack(discord.ext.commands.Bot):
         async def cleanup_messages(ctx):
             async for message in ctx.channel.history(limit=200):
                 if message.author == ctx.bot.user:
-                    try:
-                        await message.delete()
-                    except Exception:
-                        pass
+                    await try_delete(message)
         @self.command(name="version", pass_context=True, help="Get Toby's build version.")
         async def version(ctx):
             await ctx.send(f"Version: {get_version()}")

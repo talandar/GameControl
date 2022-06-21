@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+from utils import try_delete
 
 
 class XCardHandler(commands.Cog):
@@ -24,4 +25,4 @@ class XCardHandler(commands.Cog):
         await ctx.send("Fade-Card Called.  Lets fade this scene to black...")
 
     async def cog_after_invoke(self, ctx):
-        await ctx.message.delete()
+        await try_delete(ctx.message)
