@@ -133,3 +133,5 @@ dmypy.json
 
 # npm/node
 node_modules
+
+version.txt

@@ -4,8 +4,10 @@ from click import pass_context
 import discord
 from xcard_cog import XCardHandler
 from music_cog import Music
+from dice_cog import Dice
 from dotenv import load_dotenv
 from battle_cog import BattleTracker
+from utils import *
 
 
 class TobyTrack(discord.ext.commands.Bot):
@@ -17,11 +19,13 @@ class TobyTrack(discord.ext.commands.Bot):
         super().__init__(command_prefix=self.get_server_prefix)
         self.add_cog(Music(self))
         self.add_cog(XCardHandler(self))
+        self.add_cog(Dice(self))
         self.setup_prefix_map()
         self.add_general_commands()
 
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
+        print(f'running code built on {get_version()}')
 
     def get_server_prefix(self, bot, message):
         server = message.guild.id
@@ -43,7 +47,9 @@ class TobyTrack(discord.ext.commands.Bot):
                         await message.delete()
                     except Exception:
                         pass
-
+        @self.command(name="version", pass_context=True, help="Get Toby's build version.")
+        async def version(ctx):
+            await ctx.send(f"Version: {get_version()}")
 
 def main():
     """run the toby tracker.  This Method blocks"""

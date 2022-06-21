@@ -2,9 +2,9 @@ import asyncio
 import json
 from typing import AsyncIterable
 import discord
+from discord.ext import commands
 import youtube_dl
 
-from discord.ext import commands
 
 import playlist
 
