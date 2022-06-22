@@ -1,59 +1,10 @@
 import asyncio
-import json
-from typing import AsyncIterable
 import discord
 from discord.ext import commands
-import youtube_dl
-
+from youtube_dl import YoutubeDL
+from ytwrapper import *
 
 import playlist
-
-# Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ''
-
-
-ytdl_format_options = {
-    'format': 'bestaudio/best',
-    'outtmpl': './audio/%(title)s-%(id)s.%(ext)s',
-    'restrictfilenames': True,
-    'noplaylist': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'quiet': True,
-    'no_warnings': True,
-    'default_search': 'auto',
-    'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
-}
-
-ffmpeg_options = {
-    'options': '-vn',
-}
-
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
-
-
-class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-
-        self.data = data
-
-        self.title = data.get('title')
-        self.url = data.get('url')
-
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-
-        if 'entries' in data:
-            # take first item from a playlist
-            data = data['entries'][0]
-
-        filename = data['url'] if stream else ytdl.prepare_filename(data)
-        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
-
 
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -113,7 +64,6 @@ class Music(commands.Cog):
         lists = data.list_playlists()
         output = "Here's the playlists that I currently have:\n"
         if lists:
-            print(lists)
             lists = "\n".join(lists)
             output = output + lists
         await ctx.send(output)
@@ -142,11 +92,20 @@ class Music(commands.Cog):
             await ctx.send(f"Something went wrong removing the playlist called \"{name}\".  Sorry :sob:")
 
     @commands.command()
-    async def songs(self, ctx, name:str):
-        """(playlist name): Get the list of songs in a playlist"""
+    async def songs(self, ctx, name:str, urls:str=None):
+        """(playlist name) (opt: print urls?): Get the list of songs in a playlist"""
         data = self._get_data(ctx)
-        songs = data.songs_in_list(name)
-        songs = '\n'.join(songs)
+        songurls = data.songs_in_list(name)
+        songs = []
+        await ctx.send("One second while I retrieve the song data...")
+        async with ctx.typing():
+            for url in songurls:
+                song_meta = await YTDLSource.meta_from_url(url)
+                if urls:
+                    songs.append(f"\t**{song_meta['title']}**  Uploaded by {song_meta['uploader']} ({url})")
+                else:
+                    songs.append(f"\t**{song_meta['title']}**  Uploaded by {song_meta['uploader']}")
+            songs = '\n'.join(songs)
         output = f"Here's what's in {name}:\n{songs}"
         await ctx.send(output)
 
@@ -171,7 +130,6 @@ class Music(commands.Cog):
     @commands.command()
     async def play(self, ctx, playlist_name:str):
         """(playlist): Play a playlist.  Loops randomly through songs in the list."""
-        print("in play")
         data = self._get_data(ctx)
         song = data.play(playlist_name)
         if song: 
@@ -184,7 +142,6 @@ class Music(commands.Cog):
             await ctx.send("No more songs to play.  Did the playlist get deleted?")
 
     def _song_over_callback(self, ctx):
-        print('song over callback')
         pl = self._get_data(ctx).current_playlist()
         if pl:
             asyncio.run_coroutine_threadsafe(self.play(ctx, pl), loop=self.bot.loop)
@@ -200,9 +157,6 @@ class Music(commands.Cog):
     @commands.command(aliases=["skip"])
     async def next(self, ctx):
         """Go to the next song in the playlist.  If streaming, ends the song."""
-        print('in next')
-        #TODO next very likely to dupe-play, because the stop calls next, 
-        #then this calls next, and they both end up going to a new song, losing the current state
         if ctx.voice_client.is_playing():
             ctx.voice_client.stop()
 

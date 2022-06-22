@@ -2,12 +2,16 @@ import random
 import os
 import json
 
+import ytwrapper
+
 """Represents a server playlist."""
 
 class ServerPlaylist(object):
 
     DATA_FILE_LOCATION = "./playlists/"
+    CURRENT_DATA_VERSION = 0
     
+
     def __init__(self, guild_id):
         self._currentPlaylist = None
         self._currentSong = None
@@ -110,12 +114,33 @@ class ServerPlaylist(object):
             with open(self._path()) as f:
                 text = f.read()
                 imported_data = json.loads(text)
+                imported_data = self._upgrade_data(imported_data)
                 self._playlists = imported_data
         else:
             self._playlists = {}
 
+    def _upgrade_data(self, input):
+        in_ver = input.pop('version', 0)
+        print(f"Upgrading data.  Input version {in_ver}, current version {self.CURRENT_DATA_VERSION}")
+        if in_ver == self.CURRENT_DATA_VERSION:
+            print("No upgrade needed!")
+            return input
+        print("Iteratively upgrading...")
+        print("no-op yet!")
+        return input
+        """
+        if in_ver==0:
+            in_ver=1
+            print("Upgrade to version 1 - new feature")
+        """
+
+
+            
+
     def _save_data(self):
+        self._playlists['version'] = self.CURRENT_DATA_VERSION
         exported_data = json.dumps(self._playlists)
+        self._playlists.pop('version')
         print(exported_data)
         print(f"save data to {self._path()}")
         outputfile = self._path()
@@ -130,3 +155,12 @@ class ServerPlaylist(object):
 
     def _path(self):
         return os.path.join(self.DATA_FILE_LOCATION, f"{self.guild_id}.json")
+
+
+
+def test_upgrades():
+    spl = ServerPlaylist("test_v0_playlist")
+
+
+if __name__ == "__main__":
+    test_upgrades()
