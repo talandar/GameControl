@@ -1,6 +1,6 @@
 import asyncio
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from youtube_dl import YoutubeDL
 from ytwrapper import *
 
@@ -24,7 +24,7 @@ class Music(commands.Cog):
             await channel.connect()
         else:
             await ctx.send("You're not in a voice channel!  I don't know what channel to join! :confounded:")
-    
+
 
     @commands.command()
     async def stream(self, ctx, *, url):
@@ -142,6 +142,9 @@ class Music(commands.Cog):
             await ctx.send("No more songs to play.  Did the playlist get deleted?")
 
     def _song_over_callback(self, ctx):
+        #TODO: check if channel empty, and stop/leave if it is
+        if ctx.voice_client and (len(ctx.voice_client.channel.voice_states) == 1):
+            asyncio.run_coroutine_threadsafe(self.leave(ctx), loop=self.bot.loop)
         pl = self._get_data(ctx).current_playlist()
         if pl:
             asyncio.run_coroutine_threadsafe(self.play(ctx, pl), loop=self.bot.loop)
