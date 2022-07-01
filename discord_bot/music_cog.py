@@ -142,7 +142,7 @@ class Music(commands.Cog):
             await ctx.send("No more songs to play.  Did the playlist get deleted?")
 
     def _song_over_callback(self, ctx):
-        #TODO: check if channel empty, and stop/leave if it is
+        #check if channel empty, and stop/leave if it is
         if ctx.voice_client and (len(ctx.voice_client.channel.voice_states) == 1):
             asyncio.run_coroutine_threadsafe(self.leave(ctx), loop=self.bot.loop)
         pl = self._get_data(ctx).current_playlist()
