@@ -15,7 +15,7 @@ class TobyTrack(discord.ext.commands.Bot):
     default_prefix = '+'
 
     def __init__(self):
-        super().__init__(command_prefix=self.get_server_prefix)
+        super().__init__(command_prefix=self.get_server_prefix, case_insensitive=True)
         self.add_cog(Music(self))
         self.add_cog(XCardHandler(self))
         self.add_cog(Dice(self))
@@ -46,6 +46,11 @@ class TobyTrack(discord.ext.commands.Bot):
         @self.command(name="version", pass_context=True, help="Get Toby's build version.")
         async def version(ctx):
             await ctx.send(f"Version: {get_version()}")
+        @self.event
+        async def on_command_error(ctx, error):
+            if isinstance(error, discord.ext.commands.CommandNotFound):
+                await ctx.send("I don't know that command, sorry :(")
+            raise error
 
 def main():
     """run the toby tracker.  This Method blocks"""
@@ -57,3 +62,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+dedupe songs by url in lists
+case insensitive commands
+respond to unknown commands
+report progress on long tasks
+split up long messages to avoid character limit 
+"""

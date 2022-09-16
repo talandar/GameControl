@@ -47,6 +47,16 @@ class YTDLSource(discord.PCMVolumeTransformer):
             data = data['entries'][0]
         return data
 
+    @classmethod
+    async def playlist_meta_from_url(cls, url, *, loop=None):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+
+        if 'entries' in data:
+            # un-nest entries
+            data = data['entries']
+        return data
+
 
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
@@ -59,3 +69,20 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
+    @classmethod
+    async def playlist_from_url(cls, url, *, loop=None):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+
+        retval = []
+        if 'entries' in data:
+            # un-nest entries
+            data = data['entries']
+            for entry in data:
+                filename = entry['webpage_url']
+                retval.append(filename)
+        else:
+            filename = data['webpage_url']
+            retval.append(filename)
+        return retval

@@ -1,6 +1,7 @@
 import random
 import os
 import json
+from re import M
 
 import ytwrapper
 
@@ -15,6 +16,7 @@ class ServerPlaylist(object):
     def __init__(self, guild_id):
         self._currentPlaylist = None
         self._currentSong = None
+        self._currentStream = None
         self._playlists = {}
         self.guild_id = guild_id
         self._load_data()
@@ -55,6 +57,8 @@ class ServerPlaylist(object):
         if lower_name in self._playlists:
             songs = self._playlists[lower_name]['songs']
             songs.append(song_url)
+            songs = list(dict.fromkeys(songs))
+            self._playlists[lower_name]['songs'] = songs
             self._save_data()
             return True
         else:
@@ -76,7 +80,16 @@ class ServerPlaylist(object):
             return self._playlists[self._currentPlaylist]['name']
         return None
 
+    def current_stream(self):
+        return self._currentStream
+
+
+    def stream(self, song_url):
+        self._currentStream = song_url
+        self._currentPlaylist = None
+
     def play(self, playlist_name):
+        self._currentStream = None
         lower_name = playlist_name.lower()
         if lower_name in self._playlists:
             self._currentPlaylist = lower_name
@@ -107,6 +120,7 @@ class ServerPlaylist(object):
 
     def stop(self):
         self._currentPlaylist = None
+        self._currentStream = None
 
     def _load_data(self):
         print(f"load data from {self._path()}")
@@ -122,6 +136,10 @@ class ServerPlaylist(object):
     def _upgrade_data(self, input):
         in_ver = input.pop('version', 0)
         print(f"Upgrading data.  Input version {in_ver}, current version {self.CURRENT_DATA_VERSION}")
+        print("cleaning up any duplicate songs...")
+        for maybe_pl in input.keys():
+            if 'songs' in input[maybe_pl]:
+                input[maybe_pl]['songs'] = list(dict.fromkeys(input[maybe_pl]['songs']))
         if in_ver == self.CURRENT_DATA_VERSION:
             print("No upgrade needed!")
             return input

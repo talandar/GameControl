@@ -25,15 +25,6 @@ class Music(commands.Cog):
         else:
             await ctx.send("You're not in a voice channel!  I don't know what channel to join! :confounded:")
 
-
-    @commands.command()
-    async def stream(self, ctx, *, url):
-        """(url): Immediately streams from a url, does not modify playlists."""
-        player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-        ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
-        self._now_playing = f"Now streaming {player.title}"
-        await ctx.send(self._now_playing)
-
     @commands.command()
     async def volume(self, ctx, volume: int):
         """(volume [0-100]): Changes the player's volume"""
@@ -118,6 +109,21 @@ class Music(commands.Cog):
         else:
             await ctx.send("Something went wrong, sorry!  Does the playlist exist?")
 
+    @commands.command(name='addPlaylistToPlaylist')
+    async def add_songs_from_playlist(self, ctx, playlist_name:str, playlist_url:str):
+        """(playlist) (playlist url): add a song to a playlist"""
+        data = self._get_data(ctx)
+        playlist_songs = await YTDLSource.playlist_from_url(playlist_url)
+        all_success=True
+        for song in playlist_songs:
+            all_success = all_success and data.add_to_playlist(playlist_name, song)
+        if all_success:
+            await ctx.message.add_reaction("\N{THUMBS UP SIGN}")
+            await ctx.send(f"Added {len(playlist_songs)} songs to {playlist_name}")
+        else:
+            await ctx.send("Something went wrong, sorry!  Does the playlist exist?")
+
+
     @commands.command()
     async def removesong(self, ctx, playlist_name:str, song_url:str):
         """(playlist) (song url): remove a song from a playlist"""
@@ -126,6 +132,26 @@ class Music(commands.Cog):
             await ctx.message.add_reaction("\N{THUMBS UP SIGN}")
         else:
             await ctx.send("Something went wrong, sorry!  Does the playlist exist?")
+
+    @commands.command()
+    async def stream(self, ctx, url:str):
+        """(url): Immediately streams from a url, does not modify playlists."""
+        data = self._get_data(ctx)
+        old_stream = data.current_stream()
+        data.stream(url)
+        player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+        ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._stream_over_callback(ctx))
+        if old_stream != url:
+            self._now_playing = f"Now streaming {player.title}"
+            await ctx.send(self._now_playing)
+
+    def _stream_over_callback(self, ctx):
+        #check if channel empty, and stop/leave if it is
+        if ctx.voice_client and (len(ctx.voice_client.channel.voice_states) == 1):
+            asyncio.run_coroutine_threadsafe(self.leave(ctx), loop=self.bot.loop)
+        stream = self._get_data(ctx).current_stream()
+        if stream:
+            asyncio.run_coroutine_threadsafe(self.stream(ctx, stream), loop=self.bot.loop)
 
     @commands.command()
     async def play(self, ctx, playlist_name:str):
