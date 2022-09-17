@@ -114,10 +114,12 @@ class Music(commands.Cog):
     async def add_songs_from_playlist(self, ctx, playlist_name:str, playlist_url:str):
         """(playlist) (playlist url): add a song to a playlist"""
         data = self._get_data(ctx)
-        playlist_songs = await YTDLSource.playlist_from_url(playlist_url)
-        all_success=True
-        for song in playlist_songs:
-            all_success = all_success and data.add_to_playlist(playlist_name, song)
+        await send(ctx, "One minute while I pull song data from that playlist...")
+        async with ctx.typing():
+            playlist_songs = await YTDLSource.playlist_from_url(playlist_url)
+            all_success=True
+            for song in playlist_songs:
+                all_success = all_success and data.add_to_playlist(playlist_name, song)
         if all_success:
             await ctx.message.add_reaction("\N{THUMBS UP SIGN}")
             await send(ctx, f"Added {len(playlist_songs)} songs to {playlist_name}")
@@ -140,11 +142,12 @@ class Music(commands.Cog):
         data = self._get_data(ctx)
         old_stream = data.current_stream()
         data.stream(url)
-        player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-        ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._stream_over_callback(ctx))
-        if old_stream != url:
-            self._now_playing = f"Now streaming {player.title}"
-            await send(ctx, self._now_playing)
+        async with ctx.typing():
+            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+            ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._stream_over_callback(ctx))
+            if old_stream != url:
+                self._now_playing = f"Now streaming {player.title}"
+                await send(ctx, self._now_playing)
 
     def _stream_over_callback(self, ctx):
         #check if channel empty, and stop/leave if it is
@@ -158,15 +161,16 @@ class Music(commands.Cog):
     async def play(self, ctx, playlist_name:str):
         """(playlist): Play a playlist.  Loops randomly through songs in the list."""
         data = self._get_data(ctx)
-        song = data.play(playlist_name)
-        if song: 
-            player = await YTDLSource.from_url(song, loop=self.bot.loop, stream=True)
-            ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._song_over_callback(ctx))
-            self._now_playing = f"Now playing {player.title} in playlist {data.current_playlist()}"
-            await send(ctx, self._now_playing)
-        else:
-            self._now_playing = None
-            await send(ctx, "No more songs to play.  Did the playlist get deleted?")
+        async with ctx.typing():
+            song = data.play(playlist_name)
+            if song: 
+                player = await YTDLSource.from_url(song, loop=self.bot.loop, stream=True)
+                ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._song_over_callback(ctx))
+                self._now_playing = f"Now playing {player.title} in playlist {data.current_playlist()}"
+                await send(ctx, self._now_playing)
+            else:
+                self._now_playing = None
+                await send(ctx, "No more songs to play.  Did the playlist get deleted?")
 
     def _song_over_callback(self, ctx):
         #check if channel empty, and stop/leave if it is
