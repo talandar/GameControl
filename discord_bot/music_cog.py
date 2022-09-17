@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands, tasks
 from youtube_dl import YoutubeDL
 from ytwrapper import *
+from utils import send
 
 import playlist
 
@@ -23,16 +24,16 @@ class Music(commands.Cog):
                 return await ctx.voice_client.move_to(channel)
             await channel.connect()
         else:
-            await ctx.send("You're not in a voice channel!  I don't know what channel to join! :confounded:")
+            await send(ctx, "You're not in a voice channel!  I don't know what channel to join! :confounded:")
 
     @commands.command()
     async def volume(self, ctx, volume: int):
         """(volume [0-100]): Changes the player's volume"""
         if ctx.voice_client is None:
-            return await ctx.send("Not connected to a voice channel.")
+            return await send(ctx, "Not connected to a voice channel.")
         volume = max(0, min(volume, 100))
         ctx.voice_client.source.volume = volume / 100
-        await ctx.send(f"Changed volume to {volume}%")
+        await send(ctx, f"Changed volume to {volume}%")
 
     @commands.command()
     async def leave(self, ctx):
@@ -57,7 +58,7 @@ class Music(commands.Cog):
         if lists:
             lists = "\n".join(lists)
             output = output + lists
-        await ctx.send(output)
+        await send(ctx, output)
 
     @commands.command()
     async def createplaylist(self, ctx, name:str):
@@ -65,9 +66,9 @@ class Music(commands.Cog):
         data = self._get_data(ctx)
         success = data.add_playlist(name)
         if success:
-            await ctx.send(f"Created new playlist with name \"{name}\"")
+            await send(ctx, f"Created new playlist with name \"{name}\"")
         else:
-            await ctx.send(f"Couldn't create playlist with name \"{name}\".  Sorry :sob:")
+            await send(ctx, f"Couldn't create playlist with name \"{name}\".  Sorry :sob:")
 
     @commands.command()
     async def deleteplaylist(self, ctx, name:str):
@@ -78,9 +79,9 @@ class Music(commands.Cog):
             data.stop()
         success = data.remove_playlist(name)
         if success:
-            await ctx.send(f"Removed the playlist called \"{name}\"")
+            await send(ctx, f"Removed the playlist called \"{name}\"")
         else:
-            await ctx.send(f"Something went wrong removing the playlist called \"{name}\".  Sorry :sob:")
+            await send(ctx, f"Something went wrong removing the playlist called \"{name}\".  Sorry :sob:")
 
     @commands.command()
     async def songs(self, ctx, name:str, urls:str=None):
@@ -88,7 +89,7 @@ class Music(commands.Cog):
         data = self._get_data(ctx)
         songurls = data.songs_in_list(name)
         songs = []
-        await ctx.send("One second while I retrieve the song data...")
+        await send(ctx, "One second while I retrieve the song data...")
         async with ctx.typing():
             for url in songurls:
                 song_meta = await YTDLSource.meta_from_url(url)
@@ -98,7 +99,7 @@ class Music(commands.Cog):
                     songs.append(f"\t**{song_meta['title']}**  Uploaded by {song_meta['uploader']}")
             songs = '\n'.join(songs)
         output = f"Here's what's in {name}:\n{songs}"
-        await ctx.send(output)
+        await send(ctx, output)
 
     @commands.command()
     async def addsong(self, ctx, playlist_name:str, song_url:str):
@@ -107,7 +108,7 @@ class Music(commands.Cog):
         if data.add_to_playlist(playlist_name,song_url):
             await ctx.message.add_reaction("\N{THUMBS UP SIGN}")
         else:
-            await ctx.send("Something went wrong, sorry!  Does the playlist exist?")
+            await send(ctx, "Something went wrong, sorry!  Does the playlist exist?")
 
     @commands.command(name='addPlaylistToPlaylist')
     async def add_songs_from_playlist(self, ctx, playlist_name:str, playlist_url:str):
@@ -119,9 +120,9 @@ class Music(commands.Cog):
             all_success = all_success and data.add_to_playlist(playlist_name, song)
         if all_success:
             await ctx.message.add_reaction("\N{THUMBS UP SIGN}")
-            await ctx.send(f"Added {len(playlist_songs)} songs to {playlist_name}")
+            await send(ctx, f"Added {len(playlist_songs)} songs to {playlist_name}")
         else:
-            await ctx.send("Something went wrong, sorry!  Does the playlist exist?")
+            await send(ctx, "Something went wrong, sorry!  Does the playlist exist?")
 
 
     @commands.command()
@@ -131,7 +132,7 @@ class Music(commands.Cog):
         if data.remove_from_playlist(playlist_name,song_url):
             await ctx.message.add_reaction("\N{THUMBS UP SIGN}")
         else:
-            await ctx.send("Something went wrong, sorry!  Does the playlist exist?")
+            await send(ctx, "Something went wrong, sorry!  Does the playlist exist?")
 
     @commands.command()
     async def stream(self, ctx, url:str):
@@ -143,7 +144,7 @@ class Music(commands.Cog):
         ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._stream_over_callback(ctx))
         if old_stream != url:
             self._now_playing = f"Now streaming {player.title}"
-            await ctx.send(self._now_playing)
+            await send(ctx, self._now_playing)
 
     def _stream_over_callback(self, ctx):
         #check if channel empty, and stop/leave if it is
@@ -162,10 +163,10 @@ class Music(commands.Cog):
             player = await YTDLSource.from_url(song, loop=self.bot.loop, stream=True)
             ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else self._song_over_callback(ctx))
             self._now_playing = f"Now playing {player.title} in playlist {data.current_playlist()}"
-            await ctx.send(self._now_playing)
+            await send(ctx, self._now_playing)
         else:
             self._now_playing = None
-            await ctx.send("No more songs to play.  Did the playlist get deleted?")
+            await send(ctx, "No more songs to play.  Did the playlist get deleted?")
 
     def _song_over_callback(self, ctx):
         #check if channel empty, and stop/leave if it is
@@ -179,9 +180,9 @@ class Music(commands.Cog):
     async def nowplaying(self, ctx):
         """get the currently playing song and playlist"""
         if self._now_playing:
-            await ctx.send(self._now_playing)
+            await send(ctx, self._now_playing)
         else:
-            await ctx.send("Not currently playing!")
+            await send(ctx, "Not currently playing!")
 
     @commands.command(aliases=["skip"])
     async def next(self, ctx):
@@ -206,7 +207,7 @@ class Music(commands.Cog):
         source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(query))
         ctx.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
 
-        await ctx.send(f'Now playing: {query}')
+        await send(ctx, f'Now playing: {query}')
 
     #Disable this - it downloads the file
     #@commands.command()
@@ -217,7 +218,7 @@ class Music(commands.Cog):
             player = await YTDLSource.from_url(url, loop=self.bot.loop)
             ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
 
-        await ctx.send(f'Now playing: {player.title}')
+        await send(ctx, f'Now playing: {player.title}')
 
     @play.before_invoke
     @stream.before_invoke
@@ -226,7 +227,7 @@ class Music(commands.Cog):
             if ctx.author.voice:
                 await ctx.author.voice.channel.connect()
             else:
-                await ctx.send("You are not connected to a voice channel.")
+                await send(ctx, "You are not connected to a voice channel.")
                 raise commands.CommandError("Author not connected to a voice channel.")
         elif ctx.voice_client.is_playing():
             ctx.voice_client.stop()

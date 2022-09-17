@@ -35,7 +35,7 @@ class TobyTrack(discord.ext.commands.Bot):
         async def set_server_prefix(ctx, prefix: str):
             self.prefix_map[ctx.guild.id] = prefix
             print(f"Set prefix for bot to {prefix} for server {ctx.guild} ({ctx.guild.id})")
-            await ctx.send(f"Toby will now listen for prefix '{prefix}' on this server.")
+            await send(ctx, f"Toby will now listen for prefix '{prefix}' on this server.")
 
     def add_general_commands(self):
         @self.command(name="cleanup", pass_context=True, help="Clean up commands sent by Toby, as well as any commands sent by players to Toby")
@@ -45,11 +45,11 @@ class TobyTrack(discord.ext.commands.Bot):
                     await try_delete(message)
         @self.command(name="version", pass_context=True, help="Get Toby's build version.")
         async def version(ctx):
-            await ctx.send(f"Version: {get_version()}")
+            await send(ctx, f"Version: {get_version()}")
         @self.event
         async def on_command_error(ctx, error):
             if isinstance(error, discord.ext.commands.CommandNotFound):
-                await ctx.send("I don't know that command, sorry :(")
+                await send(ctx, "I don't know that command, sorry :(")
             raise error
 
 def main():

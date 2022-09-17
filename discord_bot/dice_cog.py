@@ -81,7 +81,7 @@ class Dice(commands.Cog):
             out = f"{ctx.author.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
 
         await try_delete(ctx.message)
-        await ctx.send(out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await send(ctx, out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
 
 
     @commands.command(name="multiroll", aliases=["rr"])
@@ -109,19 +109,19 @@ class Dice(commands.Cog):
         elif numdice == 0:
             rollexpr = "2d6ph1"
         else:
-            await ctx.send("You can't roll a negative number of dice!")
+            await send(ctx, "You can't roll a negative number of dice!")
             return
         res = d20.roll(rollexpr, stringifier=BladesStringifier())
         out = f"{ctx.author.mention}  :crossed_swords::game_die:\n{str(res)}"
         if len(out) > 1999:
             out = f"{ctx.author.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
         await try_delete(ctx.message)
-        await ctx.send(out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await send(ctx, out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
 
     @staticmethod
     async def _roll_many(ctx, iterations, roll_str, dc=None, adv=None):
         if iterations < 1 or iterations > 100:
-            return await ctx.send("Too many or too few iterations.")
+            return await send(ctx, "Too many or too few iterations.")
         if adv is None:
             adv = d20.AdvType.NONE
         results = []
@@ -154,4 +154,4 @@ class Dice(commands.Cog):
             out = f"{header}\n{one_result}\n[{len(results) - 1} results omitted for output size.]\n{footer}"
 
         await try_delete(ctx.message)
-        await ctx.send(f"{ctx.author.mention}\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await send(ctx, f"{ctx.author.mention}\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
